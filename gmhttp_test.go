@@ -22,10 +22,9 @@ func TestNewEngine(t *testing.T) {
 
 	engine := NewEngine(testlog)
 
-
 	t.Run("log test", func(t *testing.T) {
 		want := "hi logger\n"
-		err = engine.Get("/logger", func(w http.ResponseWriter, r *http.Request) {
+		err = engine.Get("/logger", func(c *Context) {
 			engine.Logger.Print(want)
 		})
 		if err != nil {
@@ -38,13 +37,13 @@ func TestNewEngine(t *testing.T) {
 		}
 	})
 	t.Run("conflict register", func(t *testing.T) {
-		err1 := engine.Get("/aaa", func(w http.ResponseWriter, r *http.Request) {
+		err1 := engine.Get("/aaa", func(c *Context) {
 
 		})
-		err2 := engine.Post("/aaa", func(w http.ResponseWriter, r *http.Request) {
+		err2 := engine.Post("/aaa", func(c *Context) {
 
 		})
-		err3 := engine.Get("/aaa", func(w http.ResponseWriter, r *http.Request) {
+		err3 := engine.Get("/aaa", func(c *Context) {
 
 		})
 		if err1 != nil || err2 != nil {
@@ -61,9 +60,9 @@ func TestResp(t *testing.T) {
 	req, _ := http.NewRequest("POST", "/resp/check", nil)
 
 	engine := NewEngine(log.Logger{})
-	engine.Post("/resp/check", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(300)
-		w.Write([]byte("resp ok!"))
+	engine.Post("/resp/check", func(c *Context) {
+		c.Writer.WriteHeader(300)
+		c.Writer.Write([]byte("resp ok!"))
 	})
 	resp := httptest.NewRecorder()
 	engine.ServeHTTP(resp, req)
@@ -72,5 +71,24 @@ func TestResp(t *testing.T) {
 	}
 	if resp.Body.String() != "resp ok!" {
 		t.Error("resp body error")
+	}
+}
+
+func TestContext_Json(t *testing.T) {
+	req, _ := http.NewRequest("POST", "/resp/check", nil)
+
+	engine := NewEngine(log.Logger{})
+	engine.Post("/resp/check", func(c *Context) {
+		c.Json(200, &struct {
+			Name string
+		}{Name: "zxy"})
+	})
+	resp := httptest.NewRecorder()
+	engine.ServeHTTP(resp, req)
+	if resp.Code != 200 {
+		t.Error(t.Name() + "status error")
+	}
+	if resp.Body.String() != `{"Name":"zxy"}` {
+		t.Error(t.Name() + "resp body error")
 	}
 }

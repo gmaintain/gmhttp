@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-type handlerFunc func(w http.ResponseWriter, r *http.Request)
+type handlerFunc func(c *Context)
 
 type engine struct {
 	Logger log.Logger
@@ -14,19 +14,20 @@ type engine struct {
 }
 
 func NewEngine(logger log.Logger) *engine {
-	return &engine{Logger: logger, router:make(map[string]handlerFunc)}
+	return &engine{Logger: logger, router: make(map[string]handlerFunc)}
 }
 
 func (e *engine) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	context := NewContext(w, r, e.Logger)
 	pattern := r.Method + "_" + r.URL.Path
 	if fun, ok := e.router[pattern]; ok {
-		fun(w, r)
-	}else {
+		fun(context)
+	} else {
 		w.WriteHeader(404)
 	}
 }
 
-func (e *engine) addRouter(r string, h handlerFunc) error  {
+func (e *engine) addRouter(r string, h handlerFunc) error {
 	if _, ok := e.router[r]; !ok {
 		e.router[r] = h
 		return nil
@@ -59,11 +60,6 @@ func (e *engine) Options(pattern string, engineFunc handlerFunc) error {
 	return e.addRouter(pattern, engineFunc)
 }
 
-
-func Run() {
-	engine := NewEngine(log.Logger{})
-	err := http.ListenAndServe(":8080", engine)
-	if err != nil {
-		engine.Logger.Fatalln(err)
-	}
+func (e *engine) Run() {
+	e.Logger.Fatalln(http.ListenAndServe(":8080", e))
 }
