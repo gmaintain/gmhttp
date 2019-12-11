@@ -79,16 +79,15 @@ func TestContext_Json(t *testing.T) {
 
 	engine := NewEngine(log.Logger{})
 	engine.Post("/resp/check", func(c *Context) {
-		c.Json(200, &struct {
-			Name string
-		}{Name: "zxy"})
+		c.Json(http.StatusOK, H{"Name": map[string]interface{}{"name":"ss", "age": 12}})
 	})
 	resp := httptest.NewRecorder()
 	engine.ServeHTTP(resp, req)
 	if resp.Code != 200 {
 		t.Error(t.Name() + "status error")
 	}
-	if resp.Body.String() != `{"Name":"zxy"}` {
-		t.Error(t.Name() + "resp body error")
+	if resp.Body.String() != `{"Name":{"age":12,"name":"ss"}}
+` {
+		t.Error(t.Name() + "resp body error, got:", resp.Body.String())
 	}
 }

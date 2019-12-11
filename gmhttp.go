@@ -45,6 +45,7 @@ func (e *engine) Post(pattern string, engineFunc handlerFunc) error {
 	pattern = "POST_" + pattern
 	return e.addRouter(pattern, engineFunc)
 }
+
 func (e *engine) Put(pattern string, engineFunc handlerFunc) error {
 	pattern = "PUT_" + pattern
 	return e.addRouter(pattern, engineFunc)
