@@ -50,7 +50,7 @@ func TestNewEngine(t *testing.T) {
 			t.Error(err1, err2)
 		}
 
-		if err3.Error() != "router has register" {
+		if err3 == nil || err3.Error() != "router has register" {
 			t.Error(err)
 		}
 	})

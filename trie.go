@@ -12,6 +12,10 @@ type node struct {
 }
 
 func (n *node) Insert(pattern string, parts []string, height int) {
+	if len(parts) == height {
+		n.pattern = pattern
+		return
+	}
 	part := parts[height]
 	child := n.matchChild(part)
 	if child == nil {

@@ -28,7 +28,6 @@ func (e *engine) addRouter(method, pattern string, h handlerFunc) error {
 
 //注册pattern以及执行方法
 func (e *engine) Get(pattern string, engineFunc handlerFunc) error {
-	pattern = "GET_" + pattern
 	return e.addRouter("GET", pattern, engineFunc)
 }
 
