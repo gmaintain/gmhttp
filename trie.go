@@ -4,8 +4,6 @@ import (
 	"strings"
 )
 
-
-
 type node struct {
 	pattern  string
 	part     string
@@ -34,7 +32,7 @@ func (n *node) Search(parts []string, height int) *node {
 	children := n.matchChildren(part)
 
 	for _, child := range children {
-		result := child.Search(parts, height + 1)
+		result := child.Search(parts, height+1)
 		// 疑问这段代码能走下来吗?
 		if result != nil {
 			return result
