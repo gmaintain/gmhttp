@@ -1,7 +1,6 @@
 package gmhttp
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 )
@@ -10,55 +9,45 @@ type handlerFunc func(c *Context)
 
 type engine struct {
 	Logger log.Logger
-	router map[string]handlerFunc
+	router *router
 }
 
 func NewEngine(logger log.Logger) *engine {
-	return &engine{Logger: logger, router: make(map[string]handlerFunc)}
+	return &engine{Logger: logger, router: NewRouter()}
 }
 
 func (e *engine) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	context := NewContext(w, r, e.Logger)
-	pattern := r.Method + "_" + r.URL.Path
-	if fun, ok := e.router[pattern]; ok {
-		fun(context)
-	} else {
-		w.WriteHeader(404)
-	}
+	c := NewContext(w, r, e.Logger)
+	e.router.handler(c)
 }
 
-func (e *engine) addRouter(r string, h handlerFunc) error {
-	if _, ok := e.router[r]; !ok {
-		e.router[r] = h
-		return nil
-	}
-	return fmt.Errorf("router has register")
+func (e *engine) addRouter(method, pattern string, h handlerFunc) error {
+	e.router.addRouter(method, pattern, h)
+	return nil
 }
 
 //注册pattern以及执行方法
 func (e *engine) Get(pattern string, engineFunc handlerFunc) error {
 	pattern = "GET_" + pattern
-	return e.addRouter(pattern, engineFunc)
+	return e.addRouter("GET", pattern, engineFunc)
 }
 
 func (e *engine) Post(pattern string, engineFunc handlerFunc) error {
-	pattern = "POST_" + pattern
-	return e.addRouter(pattern, engineFunc)
+	return e.addRouter("POST", pattern, engineFunc)
 }
 
 func (e *engine) Put(pattern string, engineFunc handlerFunc) error {
-	pattern = "PUT_" + pattern
-	return e.addRouter(pattern, engineFunc)
+	return e.addRouter("PUT", pattern, engineFunc)
+
 }
 
 func (e *engine) Delete(pattern string, engineFunc handlerFunc) error {
-	pattern = "DELETE_" + pattern
-	return e.addRouter(pattern, engineFunc)
+	return e.addRouter("DELETE", pattern, engineFunc)
+
 }
 
 func (e *engine) Options(pattern string, engineFunc handlerFunc) error {
-	pattern = "OPTIONS_" + pattern
-	return e.addRouter(pattern, engineFunc)
+	return e.addRouter("OPTIONS", pattern, engineFunc)
 }
 
 func (e *engine) Run() {

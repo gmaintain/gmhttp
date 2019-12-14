@@ -7,7 +7,6 @@ import (
 	"testing"
 )
 
-
 func TestContext_Status(t *testing.T) {
 	req, _ := http.NewRequest("GET", "/aaa", nil)
 	resp := httptest.NewRecorder()
