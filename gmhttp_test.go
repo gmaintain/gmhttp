@@ -34,24 +34,6 @@ func TestNewEngine(t *testing.T) {
 			t.Errorf("want: %v, got: %v", want, got)
 		}
 	})
-	t.Run("conflict register", func(t *testing.T) {
-		err1 := engine.Get("/aaa", func(c *Context) {
-
-		})
-		err2 := engine.Post("/aaa", func(c *Context) {
-
-		})
-		err3 := engine.Get("/aaa", func(c *Context) {
-
-		})
-		if err1 != nil || err2 != nil {
-			t.Error(err1, err2)
-		}
-
-		if err3 == nil || err3.Error() != "router has register" {
-			t.Error(err)
-		}
-	})
 }
 
 func TestResp(t *testing.T) {

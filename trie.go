@@ -66,8 +66,9 @@ func (n *node) matchChildren(part string) []*node {
 
 func (n *node) travel(list *([]*node)) {
 	if n.pattern != "" {
-		*list = append(*list, n)
+
 	}
+	*list = append(*list, n)
 	for _, child := range n.children {
 		child.travel(list)
 	}
