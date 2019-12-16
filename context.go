@@ -18,11 +18,11 @@ type Context struct {
 	Params     map[string]string
 }
 
-func NewContext(writer http.ResponseWriter, request *http.Request, logger log.Logger) *Context {
+func NewContext(writer http.ResponseWriter, request *http.Request, logger *log.Logger) *Context {
 	return &Context{
 		Writer:  writer,
 		Request: request,
-		Logger:  logger,
+		Logger:  *logger,
 		Method:  request.Method,
 		Path:    request.URL.Path,
 	}

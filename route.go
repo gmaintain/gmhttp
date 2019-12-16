@@ -70,6 +70,16 @@ func (r *router) addRouter(method, pattern string, handler handlerFunc) {
 	r.handlers[key] = handler
 }
 
+func (r *router) getRoutes(method string) []*node {
+	root, ok := r.roots[method]
+	if !ok {
+		return nil
+	}
+	nodes := make([]*node, 0)
+	root.travel(&nodes)
+	return nodes
+}
+
 func (r *router) handler(c *Context) {
 	n, params := r.getRoute(c.Method, c.Path)
 	if n != nil {

@@ -7,12 +7,15 @@ import (
 
 type handlerFunc func(c *Context)
 
+var Glog *log.Logger
+
 type engine struct {
-	Logger log.Logger
+	Logger *log.Logger
 	router *router
 }
 
-func NewEngine(logger log.Logger) *engine {
+func NewEngine(logger *log.Logger) *engine {
+	Glog = logger
 	return &engine{Logger: logger, router: NewRouter()}
 }
 

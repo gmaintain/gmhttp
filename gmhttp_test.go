@@ -2,9 +2,9 @@ package gmhttp
 
 import (
 	"bytes"
-	"log"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 )
 
@@ -17,22 +17,20 @@ func TestNewEngine(t *testing.T) {
 	}
 	resp := httptest.NewRecorder()
 
-	testlog := log.Logger{}
-	testlog.SetOutput(&logbuf)
-
-	engine := NewEngine(testlog)
+	tlog.SetOutput(&logbuf)
+	engine := NewEngine(tlog)
 
 	t.Run("log test", func(t *testing.T) {
 		want := "hi logger\n"
 		err = engine.Get("/logger", func(c *Context) {
-			engine.Logger.Print(want)
+			engine.Logger.Println(want)
 		})
 		if err != nil {
 			t.Fatal(err)
 		}
 		engine.ServeHTTP(resp, req)
 		got := logbuf.String()
-		if got != want {
+		if strings.Contains(want, got) {
 			t.Errorf("want: %v, got: %v", want, got)
 		}
 	})
@@ -59,7 +57,7 @@ func TestNewEngine(t *testing.T) {
 func TestResp(t *testing.T) {
 	req, _ := http.NewRequest("POST", "/resp/check", nil)
 
-	engine := NewEngine(log.Logger{})
+	engine := NewEngine(tlog)
 	engine.Post("/resp/check", func(c *Context) {
 		c.Writer.WriteHeader(300)
 		c.Writer.Write([]byte("resp ok!"))
@@ -77,7 +75,7 @@ func TestResp(t *testing.T) {
 func TestContext_Json(t *testing.T) {
 	req, _ := http.NewRequest("POST", "/resp/check", nil)
 
-	engine := NewEngine(log.Logger{})
+	engine := NewEngine(tlog)
 	engine.Post("/resp/check", func(c *Context) {
 		c.Json(http.StatusOK, H{"Name": map[string]interface{}{"name": "ss", "age": 12}})
 	})

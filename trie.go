@@ -64,6 +64,15 @@ func (n *node) matchChildren(part string) []*node {
 	return nodes
 }
 
+func (n *node) travel(list *([]*node)) {
+	if n.pattern != "" {
+		*list = append(*list, n)
+	}
+	for _, child := range n.children {
+		child.travel(list)
+	}
+}
+
 type noder interface {
 	Insert(pattern string, parts []string, height int)
 	Search(parts []string, height int) *node
